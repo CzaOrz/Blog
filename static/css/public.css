@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    height: 100vh;
+    background-image: linear-gradient(45deg, #FFCDD2, #B3E5FC);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.top-circle-menu{
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    padding: 6px;
+    right: 20px;
+    bottom: 20px;
+    background-color: #ffffff;
+    opacity: .7;
+    background-clip: content-box;
+    transition: transform 1s ease;
+    cursor: pointer;
+}
+
+.top-circle-menu:hover{
+    transform: scale(1.2);
+}
+
+.top-circle-menu:active{
+    transform: scale(.5);
+}
