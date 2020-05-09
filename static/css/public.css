@@ -1,19 +1,46 @@
+/*
+* 内容
+*/
 * {
     margin: 0;
     padding: 0;
 }
-
-body{
+body {
     height: 100vh;
     background-image: linear-gradient(45deg, #FFCDD2, #B3E5FC);
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+.container {
+    position: relative;
+    max-width: 1300px;
+    margin: 10px auto;
+}
+.rank {
+    height: 1px;
+    background-color: #E0E0E0;
+    margin: 5px 0;
+}
+@keyframes leftInfoBoxFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 
-.top-circle-menu{
+/*
+* 顶部功能按钮
+*/
+.top-circle-menu {
     position: absolute;
     height: 40px;
     width: 40px;
+    max-height: 9vw;
+    max-width: 9vw;
     border: 4px solid #ffffff;
     border-radius: 50%;
     padding: 6px;
@@ -24,12 +51,72 @@ body{
     background-clip: content-box;
     transition: transform 1s ease;
     cursor: pointer;
+    transform: scale(1);
+    z-index: 3;
 }
-
-.top-circle-menu:hover{
-    transform: scale(1.2);
+.top-circle-menu:hover {
+    transform: scale(1.1);
 }
-
-.top-circle-menu:active{
+.top-circle-menu:active {
     transform: scale(.5);
+}
+
+/*
+* 左侧信息栏
+*/
+.left-info-box {
+    position: relative;
+    width: 300px;
+    animation: leftInfoBoxFadeIn 1s;
+    animation-fill-mode: backwards;
+}
+.left-info-item{
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    position: relative;
+    margin-bottom: 10px;
+    user-select: none;
+}
+/* 人物卡片 */
+.author-card{
+    text-align: center;
+}
+.card-img-box {
+    position: relative;
+}
+.row-bar {
+    height: 3px;
+    width: 100%;
+    background-color: #9E9E9E;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.card-img {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    border: 3px solid #9E9E9E;
+    position: relative;
+}
+.card-title{
+    margin-bottom: 10px;
+}
+.dialogue{
+    display: block;
+    opacity: .6;
+    font-size: 13px;
+    transition: opacity .5s ease;
+}
+.dialogue:hover{
+    opacity: 1;
+}
+/* 人物工作线 */
+.history-point{}
+.history-time{
+    font-size: 12px;
+}
+.history-company{
+    font-size: 14px;
 }

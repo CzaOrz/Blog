@@ -2,12 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CzaOrz's Blog</title>
     <link rel="stylesheet" href="./static/css/public.css">
 </head>
 <body>
 <!-- 圆形菜单按钮 -->
-<div class="top-circle-menu">
+<div class="top-circle-menu"></div>
+
+<div class="container">
+    <!-- 左侧信息栏 -->
+    <div class="left-info-box">
+        <div class="left-info-item author-card">
+            <div class="card-img-box">
+                <div class="row-bar"></div>
+                <img class="card-img" src="data:image/jpeg;base64,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" alt="">
+            </div>
+            <h3 class="card-title">朵公主传</h3>
+            <span class="dialogue">你是世上最可爱的小猫咪嘛，朵朵</span>
+            <span class="dialogue">喵!?</span>
+            <span class="dialogue">朵朵，球球怀孕了，你开心嘛</span>
+            <span class="dialogue">喵!?</span>
+            <span class="dialogue">其实，孩子不是你的..</span>
+            <span class="dialogue">喵!?</span>
+            <span class="dialogue">因为你是公公呀</span>
+            <span class="dialogue">喵!?</span>
+            <span class="dialogue">朵公公...</span>
+            <span class="dialogue">喵!?</span>
+        </div>
+        <div class="left-info-item author-work-experience">
+            <div class="history-point">
+                <span class="history-time">2014-2018</span>
+                <span class="history-company">武汉科技大学/本科/工业工程</span>
+                <div class="history-describe">
+                    天不生朵朵, 喵界万古如长夜
+                </div>
+            </div>
+            <div class="history-point">
+                <span class="history-time">2018-2019</span>
+                <span class="history-company">武汉中软国际</span>
+                <div class="history-describe">
+                    天不生朵朵, 喵界万古如长夜
+                </div>
+            </div>
+            <div class="history-point">
+                <span class="history-time">2019-2030</span>
+                <span class="history-company">武汉数博科技</span>
+                <div class="history-describe">
+                    天不生朵朵, 喵界万古如长夜
+                </div>
+            </div>
+        </div>
+        <div class="left-info-item blog-labels"></div>
+    </div>
+    <!-- 右侧博客栏 -->
+    <div class="right-blog-box"></div>
 </div>
+
 </body>
 </html>
