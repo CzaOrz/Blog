@@ -1,5 +1,5 @@
 /*
-* 内容
+* 公共内容
 */
 * {
     margin: 0;
@@ -29,6 +29,39 @@ body {
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+.bubble {
+     height: 60px;
+     width: 60px;
+     border-radius: 50%;
+     background-color: rgba(255, 255, 255, .4);
+     position: absolute;
+     animation: bubble 9s infinite;
+ }
+.bubble2 {
+    animation-duration: 7s;
+    height: 50px;
+    width: 50px;
+    left: 20%;
+}
+.bubble3 {
+    animation-duration: 5s;
+    height: 30px;
+    width: 30px;
+    left: 30%;
+}
+@keyframes bubble {
+    from {
+        transform: translateX(0);
+        bottom: -100px;
+    }
+    50% {
+        transform: translateX(100px);
+    }
+    to {
+        transform: translateX(0);
+        bottom: 100vh;
     }
 }
 
@@ -67,7 +100,8 @@ body {
 .left-info-box {
     position: relative;
     width: 300px;
-    animation: leftInfoBoxFadeIn 1s;
+    animation: leftInfoBoxFadeIn 1.5s;
+    animation-delay: .5s;
     animation-fill-mode: backwards;
 }
 .left-info-item{
