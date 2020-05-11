@@ -12,6 +12,7 @@ body {
     background-attachment: fixed;
 }
 .container {
+    display: flex;
     position: relative;
     max-width: 1300px;
     margin: 10px auto;
@@ -36,7 +37,7 @@ body {
      width: 60px;
      border-radius: 50%;
      background-color: rgba(255, 255, 255, .4);
-     position: absolute;
+     position: fixed;
      animation: bubble 9s infinite;
  }
 .bubble2 {
@@ -69,7 +70,7 @@ body {
 * 顶部功能按钮
 */
 .top-circle-menu {
-    position: absolute;
+    position: fixed;
     height: 40px;
     width: 40px;
     max-height: 9vw;
@@ -105,7 +106,7 @@ body {
     animation-fill-mode: backwards;
 }
 .left-info-item{
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 20px;
     background-color: #f1f1f1;
     position: relative;
@@ -157,13 +158,141 @@ body {
     width: 8px;
     border-radius: 50%;
     position: absolute;
-    background-color: rgba(0,0,0,.5);
+    background-color: #BDBDBD;
     top: 1em;
     left: -8px;
+}
+.history-point:nth-child(-n + 2):after{
+    content: '';
+    height: 100%;
+    width: 2px;
+    position: absolute;
+    top: 1em;
+    left: -6px;
+    transform: translateX(50%);
+    background-color: #BDBDBD;
+}
+.history-point:hover > .history-company{
+    opacity: 1;
+}
+.history-point:hover > .history-describe{
+    opacity: .8;
 }
 .history-time{
     font-size: 12px;
 }
 .history-company{
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: bold;
+    opacity: .7;
+    transition: opacity 1s ease;
+}
+.history-describe{
+    margin-top: 10px;
+    opacity: .5;
+    transition: opacity 1s ease;
+}
+/* 标签栏 */
+.left-blog-labels{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+.left-blog-label{
+    margin: 5px 5px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,.1);
+    cursor: pointer;
+    transition: background-color 1s ease, transform 1s ease;
+    box-sizing: border-box;
+}
+.left-blog-label:hover{
+    background-color: rgba(0,0,0,.3);
+}
+.left-blog-label:active{
+    transform: scale(.6);
+}
+.num-label{
+    display: inline-block;
+    margin-left: 10px;
+    background-color: rgba(255,255,255,.9);
+    padding: 3px;
+    font-size: 12px;
+    height: 14px;
+    line-height: 14px;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #fff;
+}
+
+/*
+* 右侧博客栏
+*/
+.right-blog-box{
+    flex: 1;
+    position: relative;
+    padding: 0 20px;
+}
+/* 加载动画 */
+.ajax-loading{
+    display: flex;
+    justify-content: center;
+    visibility: hidden;
+}
+.loading-point{
+    height: 12px;
+    width: 12px;
+    margin: 0 6px;
+    border-radius: 50%;
+    background-color: rgba(0,0,0,.4);
+    animation: ajaxLoading 5s infinite;
+    opacity: 0;
+}
+@keyframes ajaxLoading {
+    from {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    65% {
+        transform: translateY(-100%);
+        opacity: 1;
+    }
+    75% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+.loading-point:nth-of-type(2){ animation-delay: .3s; }
+.loading-point:nth-of-type(3){ animation-delay: .6s; }
+.loading-point:nth-of-type(4){ animation-delay: .9s; }
+.loading-point:nth-of-type(5){ animation-delay: 1.2s; }
+/* 博客页面 */
+.blog-box{}
+.blog{
+    height: 300px;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    position: relative;
+    padding: 10px;
+}
+.right-blog-labels{
+    position: absolute;
+    display: flex;
+}
+.right-blog-label{}
+.blog-img-box{
+    width: 30%;
+    display: inline-block;
+}
+.blog-img{
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+.blog-info{
+    display: inline-block;
 }
