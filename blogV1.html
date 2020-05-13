@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>blog</title>
+    <link rel="shortcut icon" href="https://ae01.alicdn.com/kf/H8eaaf9b80191435f8de37851d0e0e37dc.png">
+    <link rel="stylesheet" href="./static/css/styleV1.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script type="text/javascript" src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/animejs/3.1.0/anime.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="container-fluid">
+        <div class="row blog-search">
+            <div class="search-box col-sm-offset-3 col-sm-6 col-xs-offset-2 col-xs-8" :class="{searching:search_flag}">
+                <input type="text" v-model="input_content" ref="search_box">
+                <span data-placeholder="搜索"></span>
+            </div>
+            <div class="col-sm-3 col-xs-2" style="margin-top:20px;">
+                <button class="btn btn-default" @click="show_all_blog(blog_detail=false)" v-if="blog_detail">返回</button>
+                <button class="btn btn-default" @click="show_all_blog(blog_detail=false,label_flag=false, anime_func_all())" v-if="label_flag">首页</button>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 hidden-xs">
+                <div class="user-box">
+                    <div class="user-img">
+                        <img src="https://ae01.alicdn.com/kf/H38d3294e34a44e92b520312a1cce3681s.png" alt="">
+                        <div class="user-img-label">COOL</div>
+                        <div class="user-img-text">Hello!</div>
+                        <div class="user-img-icons">
+                            <a href="https://github.com/CzaOrz" target="_blank"><i class="fa fa-github"></i></a>
+                        </div>
+                    </div>
+                    <h3 class="user-title">关于作者</h3>
+                    <div class="user-history">
+                        <div class="user-info-box">
+                            <h4>2014.09-2018.06</h4>
+                            <div>武汉科技大学 / 本科</div>
+                        </div>
+                        <div class="user-info-box">
+                            <h4>2018.04-2019.03</h4>
+                            <div>武汉中软国际科技服务有限公司 / 驱动开发</div>
+                        </div>
+                        <div class="user-info-box">
+                            <h4>2019.03-至今</h4>
+                            <div>武汉数博科技责任有限公司 / 爬虫开发</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-box">
+                    <div class="menu-item" id="menu-item-1">
+                        <div class="menu-btn"><i class="fa fa-user" aria-hidden="true"></i>Author</div>
+                        <div class="son-menu">
+                            <div class="son-menu-item">Name: 陈子昂</div>
+                            <div class="son-menu-item">Birth: 1995-09-17</div>
+                        </div>
+                    </div>
+                    <div class="menu-item" id="menu-item-2">
+                        <div class="menu-btn"><i class="fa fa-envelope" aria-hidden="true"></i>Email</div>
+                        <div class="son-menu">
+                            <div class="son-menu-item">972542655@qq.com</div>
+                            <div class="son-menu-item">chenziangsg@163.com</div>
+                        </div>
+                    </div>
+                    <div class="menu-item" id="menu-item-3">
+                        <div class="menu-btn"><i class="fa fa-cog" aria-hidden="true"></i>Settings</div>
+                        <div class="son-menu">
+                            <a class="son-menu-item" href="#">ColorBoard</a>
+                            <a class="son-menu-item" href="#">RequestHeader</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="count-box">
+                    <div class="ui-loop" id="blog_count">
+                        <h3>Blog</h3>
+                        <div>
+                            <svg viewBox="0 0 54 54">
+                                <path class="path-loop-bg" d="M27,2A25,25,0,1,1,2,27,25,25,0,0,1,27,2"></path>
+                                <path class="path-loop" d="M27,2A25,25,0,1,1,2,27,25,25,0,0,1,27,2" ></path>
+                            </svg>
+                            <span id="blog_count_svg"></span>
+                        </div>
+                    </div>
+                     <div class="ui-loop" id="blog_page_count">
+                        <h3>Page</h3>
+                        <div>
+                            <svg viewBox="0 0 54 54">
+                                <path class="path-loop-bg" d="M27,2A25,25,0,1,1,2,27,25,25,0,0,1,27,2"></path>
+                                <path class="path-loop" d="M27,2A25,25,0,1,1,2,27,25,25,0,0,1,27,2" ></path>
+                            </svg>
+                            <span id="blog_page_count_svg"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="label-box">
+                    <a href="#" v-for="label in settings.labels" @click.prevent="loading_label(label)">
+                        <span class="badge">
+                            {{label.name + ' ' + label.total}}
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-sm-9 col-xs-12" id="blog">
+                <div v-if="blog_detail">
+                    <iframe id="blog-iframe" :src="blog_url" frameborder="0" scrolling="no" marginwidth="0" marginheight="0" width="100%"></iframe>
+                </div>
+                <div v-else>
+                    <div class="blog-row">
+                        <div class="blog-box" v-for="blog in searching(choose_label_blog(label_flag), input_content)" :key="blog.blog_id">
+                            <div class="blog-front">
+                                <div class="blog-label">
+                                    <span v-for="label in blog.labels">{{label}}</span>
+                                </div>
+                                <img class="blog-img" src="" :src="blog.blog_img" alt="">
+                                <h3 class="blog-title">{{blog.blog_title}}</h3>
+                                <div class="blog-abstract">{{ blog.blog_abstract }}</div>
+                                <div class="blog-footer">
+                                    <span class="badge">{{ blog.blog_author }}</span>
+                                    <span class="badge">{{ blog.blog_created }}</span>
+                                </div>
+                            </div>
+                            <div class="blog-back">
+                                <div class="blog-content">
+                                    {{ blog.blog_content }}
+                                </div>
+                                <a class="blog-detail" href="#" @click.prevent="blog_detail_func(blog.blog_url)"><span class="badge">跳转详情</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="loading-box" v-show="loading_flag">
+                        <div class="loading-bar"></div>
+                        <div class="loading-bar"></div>
+                        <div class="loading-bar"></div>
+                        <div class="loading-bar"></div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<p></p>
+<p></p>
+<div class="footer">
+    <div class="navbar navbar-default navbar-static-bottom">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="page-footer">
+                    welcome to here
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="./static/js/indexV1.js"></script>
+</body>
+</html>
