@@ -1,6 +1,34 @@
-var ajaxLoading = document.querySelector('.ajax-loading'),
-    topCircleMenu = document.querySelector('.top-circle-menu');
+var topCircleMenu = document.querySelector('.top-circle-menu');
+var Loading = {
+        isLoading: false,
+        ajaxLoading: document.querySelector('.ajax-loading'),
+        nextUrl: '',
+        blogLastUrl: ''
+    },
+    Infos = {};
+Object.defineProperty(Loading, 'isLoading', {
+    set(v) {
+        this.value = v;
+        if (v === true) {
+            this.ajaxLoading.classList.remove('hidden');
+        } else {
+            this.ajaxLoading.classList.add('hidden');
+        }
+    },
+    get() {
+        return this.value;
+    }
+});
 
+function init() {
+    ajax('GET', 'http://127.0.0.1:8866/api/settings').then(apiData => {
+        Infos = JSON.parse(apiData);
+        Loading.nextUrl = Infos.blog_url;
+        Loading.blogLastUrl = Infos.blog_last_url;
+        loadBlog();
+        drawingLabelNodes(Infos.labels);
+    })
+}
 
 function ajax(method, url, data) {
     var request = new XMLHttpRequest();
@@ -17,6 +45,26 @@ function ajax(method, url, data) {
         request.open(method, url);
         request.send(data);
     });
+}
+
+function drawingLabelNodes(labelData) {
+    console.log(labelData);
+    var
+        leftBlogLabels = document.querySelector('.left-blog-labels'),
+        fragment = document.createDocumentFragment();
+    labelData.forEach(data => {
+        var
+            leftBlogLabel = document.createElement('a'),
+            numLabel = document.createElement('span');
+        leftBlogLabel.setAttribute('href', data.url);
+        leftBlogLabel.innerText = data.name;
+        numLabel.innerText = data.total;
+        leftBlogLabel.classList.add('left-blog-label');
+        numLabel.classList.add('num-label');
+        leftBlogLabel.appendChild(numLabel);
+        fragment.appendChild(leftBlogLabel);
+    });
+    leftBlogLabels.appendChild(fragment);
 }
 
 function drawingBlogNodes(blogData) {
@@ -39,7 +87,7 @@ function drawingBlogNodes(blogData) {
             blogCreateTime = document.createElement('div');
         blog.style.opacity = '0';
         blog.style.transform = 'translateY(20px)';
-        blog.classList.add('blog');
+        blog.classList.add('blog', 'right-blog-fade-in');
         blogImgBox.classList.add('blog-img-box');
         rightBlogLabels.classList.add('right-blog-labels');
         rightBlogLabel.classList.add('right-blog-label');
@@ -78,9 +126,36 @@ function drawingBlogNodes(blogData) {
     blogBox.appendChild(fragment);
 }
 
-
 document.addEventListener('DOMContentLoaded', e => {
-    ajax('GET', 'http://127.0.0.1:8866/api/blog').then(appData => {
-        // drawingBlogNodes(JSON.parse(appData).blogs);
+    init();
+});
+
+function loadBlog() {
+    if (Loading.isLoading) return;
+    if (!Loading.nextUrl) return;
+    Loading.isLoading = true;
+    ajax('GET', Loading.nextUrl).then(appData => {
+        var data = JSON.parse(appData);
+        Loading.isLoading = false;
+        Loading.nextUrl = data.next_url;
+        drawingBlogNodes(data.blogs);
     });
+}
+
+function checkLoadBlog() {
+    if (Loading.isLoading) return;
+    if (!Loading.nextUrl) return;
+    var
+        winHeight = window.innerHeight,
+        curHeight = document.documentElement.scrollTop,
+        domHeight = document.documentElement.scrollHeight;
+    if ((winHeight + curHeight + 10) > domHeight) {
+        loadBlog();
+    }
+}
+
+document.addEventListener('scroll', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    checkLoadBlog();
 });
