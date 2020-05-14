@@ -14,6 +14,10 @@ var
                     break;
                 case 1:
                     break;
+                case 2:
+                    break;
+                case 3:
+                    break;
             }
             hasChoice = null;
         }
@@ -33,6 +37,28 @@ Object.defineProperty(Loading, 'isLoading', {
             this.ajaxLoading.classList.remove('hidden');
         } else {
             this.ajaxLoading.classList.add('hidden');
+        }
+    },
+    get() {
+        return this.value;
+    }
+});
+var BlogBoxContent = {
+    isBlogDetail: false,
+    blogBox: document.querySelector('.blog-box'),
+    blogIframe: document.querySelector('#blog-iframe')
+};
+Object.defineProperty(BlogBoxContent, 'isBlogDetail', {
+    set(v) {
+        this.value = v;
+        if (v === true) {
+            this.blogBox.classList.remove('right-blog-fade-in');
+            this.blogIframe.classList.add('right-blog-fade-in');
+            // this.blogBox.style.position = 'absolute';
+        } else {
+            this.blogBox.classList.add('right-blog-fade-in');
+            this.blogIframe.classList.remove('right-blog-fade-in');
+            // this.blogBox.style.position = 'block';
         }
     },
     get() {
@@ -68,7 +94,6 @@ function ajax(method, url, data) {
 }
 
 function drawingLabelNodes(labelData) {
-    console.log(labelData);
     var
         leftBlogLabels = document.querySelector('.left-blog-labels'),
         fragment = document.createDocumentFragment();
@@ -141,16 +166,40 @@ function drawingBlogNodes(blogData) {
         blogFooter.appendChild(blogCreateTime);
         blog.appendChild(blogFooter);
 
+        var info = data;
+        blogTitle.addEventListener('click', () => {
+            loadBlogDetail(info);
+        });
         fragment.appendChild(blog);
     });
     blogBox.appendChild(fragment);
+}
+
+var
+    blogIframe = document.querySelector('#blog-iframe');
+function setIframeHeight(iframe) {
+    if (iframe) {
+        var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+        if (iframeWin.document.body) {
+            iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+        }
+    }
+}
+blogIframe.addEventListener('load', e => {
+    Loading.isLoading = false;
+    // setIframeHeight(blogIframe);
+});
+function loadBlogDetail(info) {
+    Loading.isLoading = true;
+    BlogBoxContent.isBlogDetail = true;
+    blogIframe.setAttribute('src', 'https://www.baidu.com');
 }
 
 function loadBlog() {
     if (Loading.isLoading) return;
     if (!Loading.nextUrl) return;
     Loading.isLoading = true;
-    ajax('GET', Loading.nextUrl).then(appData => {
+    ajax('GET', `http://127.0.0.1:8866/api/blog?filePath=${Loading.nextUrl}`).then(appData => {
         var data = JSON.parse(appData);
         Loading.isLoading = false;
         Loading.nextUrl = data.next_url;
@@ -160,6 +209,7 @@ function loadBlog() {
 
 function checkLoadBlog() {
     if (Loading.isLoading) return;
+    if (BlogBoxContent.isBlogDetail) return;
     if (!Loading.nextUrl) return;
     var
         winHeight = window.innerHeight,
@@ -180,18 +230,65 @@ document.addEventListener('scroll', e => {
     checkLoadBlog();
 });
 
+function animationToTop() {
+    var timer = null;
+    timer = requestAnimationFrame(function scrollToTop() {
+        var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+        if (scrollTop > 4000) {
+            document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 200;
+            requestAnimationFrame(scrollToTop);
+        } else if (scrollTop > 2000) {
+            document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 100;
+            requestAnimationFrame(scrollToTop);
+        } else if (scrollTop > 0) {
+            document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 50;
+            requestAnimationFrame(scrollToTop);
+        } else {
+            cancelAnimationFrame(timer);
+        }
+    });
+}
+
+function animationToBottom() {
+    var timer = null;
+    timer = requestAnimationFrame(function scrollToBottom() {
+        var scrollHeight = document.body.scrollHeight,
+            scrollTop = document.body.scrollTop || document.documentElement.scrollTop,
+            offset = scrollHeight - scrollTop;
+        if (offset > 1000) {
+            document.body.scrollTop = document.documentElement.scrollTop = scrollTop + 100;
+            requestAnimationFrame(scrollToBottom);
+        } else {
+            cancelAnimationFrame(timer);
+        }
+    });
+}
+function forwardStep (){
+    BlogBoxContent.isBlogDetail = true;
+}
+function backwardStep (){
+    BlogBoxContent.isBlogDetail = false;
+}
+
 topMenus.forEach((menu, index) => {
     menu.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
         if (hasChoiceBool) return;
         hasChoiceBool = true;
+        hasChoice = index;
         switch (index) {
-            case 0:
-                hasChoice = index;
+            case 0:  // 后退
+                setTimeout(forwardStep, 1500);
                 break;
-            case 1:
-                hasChoice = index;
+            case 1:  // 跳转顶部
+                setTimeout(animationToTop, 1500);
+                break;
+            case 2:  // 前进
+                setTimeout(backwardStep, 1500);
+                break;
+            case 3:  // 跳转底部
+                setTimeout(animationToBottom, 1500);
                 break;
         }
         setTimeout(addChoice, 500);
@@ -236,7 +333,7 @@ topCircleMenu.addEventListener('mouseup', () => {
         setTimeout(removeChoice, 300);
     }
 });
-topCircleMenu.addEventListener('touchstart', () => {
+topCircleMenu.addEventListener('touchstart', e => {
     topCircleMenuClicked = true;
     setTimeout(() => {
         if (!topCircleMenuClicked) return;
@@ -245,11 +342,11 @@ topCircleMenu.addEventListener('touchstart', () => {
         document.addEventListener('touchmove', topCircleMenuMove);
     }, 500);
 });
-topCircleMenu.addEventListener('touchend', () => {
+topCircleMenu.addEventListener('touchend', e => {
     topCircleMenuClicked = false;
     if (topCircleMenuMoving) {
         topCircleMenuMoving = false;
-        document.removeEventListener('mousemove', topCircleMenuMove);
+        document.removeEventListener('touchmove', topCircleMenuMove);
         topCircleMenu.classList.add('top-menu-btn-static');
     } else {
         topCircleMenu.style.opacity = '0';

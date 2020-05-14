@@ -152,9 +152,8 @@ a{
     transform: translate(100%, 100%);
 }
 .top-menu:hover {
-    background-color: rgba(255, 255, 255, .2);
-    color: rgba(0, 0, 0, .5);
-    font-size: 4vh;
+    background-color: rgba(0, 0, 0, .8);
+    color: rgba(255, 255, 255, .9);
 }
 .top-menu:active {
     opacity: 1;
@@ -308,6 +307,7 @@ a{
 .right-blog-box{
     flex: 1;
     position: relative;
+    padding: 0 20px;
 }
 .right-blog-fade-in{
     animation: rightBlogBoxFadeIn 1.5s;
@@ -360,8 +360,24 @@ a{
 .loading-point:nth-of-type(4){ animation-delay: .9s; }
 .loading-point:nth-of-type(5){ animation-delay: 1.2s; }
 /* 博客页面 */
+#blog-iframe{
+    width: 100%;
+    min-height: 0;
+    max-height: 0;
+    border: none;
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation-delay: .5s;
+    animation-fill-mode: forwards;
+    position: absolute;
+}
 .blog-box{
     text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation-delay: .5s;
+    animation-fill-mode: forwards;
 }
 .blog{
     text-align: left;
@@ -370,7 +386,7 @@ a{
     position: relative;
     padding: 10px;
     margin: 0 20px 20px 20px;
-    display: inline-grid;
+    display: grid;
     animation-delay: .5s;
     animation-fill-mode: forwards;
     grid-template-columns: 240px auto;
@@ -379,9 +395,13 @@ a{
             'BlogImgBox BlogInfo'
             'BlogImgBox BlogFooter';
 }
+.blog:hover{
+    box-shadow: 0 0 15px rgba(0,0,0,.5);
+}
 .blog-img-box{
     position: relative;
     grid-area: BlogImgBox;
+    border-radius: 5px;
 }
 .right-blog-labels{
     position: absolute;
@@ -396,7 +416,6 @@ a{
 .blog-img{
     width: 100%;
     height: 100%;
-    border-radius: 5px;
 }
 .blog-info{
     grid-area: BlogInfo;
@@ -408,6 +427,10 @@ a{
     display: inline;
     padding-bottom: 5px;
     border-bottom: 3px solid rgba(0,0,0,.5);
+    cursor: pointer;
+}
+.blog-title:hover{
+    color: #E57373;
 }
 .blog-abstract{
     margin: 15px 0;
@@ -449,6 +472,7 @@ a{
         font-size: 16px;
     }
     .blog{
+        display: inline-grid;
         grid-template-columns: 240px;
         grid-template-rows: 160px 140px 30px;
         grid-template-areas:
