@@ -307,7 +307,6 @@ a{
 .right-blog-box{
     flex: 1;
     position: relative;
-    padding: 0 20px;
 }
 .right-blog-fade-in{
     animation: rightBlogBoxFadeIn 1.5s;
@@ -360,22 +359,8 @@ a{
 .loading-point:nth-of-type(4){ animation-delay: .9s; }
 .loading-point:nth-of-type(5){ animation-delay: 1.2s; }
 /* 博客页面 */
-#blog-iframe{
-    width: 100%;
-    min-height: 0;
-    max-height: 0;
-    border: none;
-    border-radius: 10px;
-    opacity: 0;
-    transform: translateY(20px);
-    animation-delay: .5s;
-    animation-fill-mode: forwards;
-    position: absolute;
-}
 .blog-box{
     text-align: center;
-    opacity: 0;
-    transform: translateY(20px);
     animation-delay: .5s;
     animation-fill-mode: forwards;
 }
@@ -423,6 +408,7 @@ a{
     overflow-y: auto;
 }
 .blog-title{
+    color: #000;
     font-weight: bold;
     display: inline;
     padding-bottom: 5px;

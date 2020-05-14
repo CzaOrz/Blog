@@ -1,28 +1,41 @@
-var
-    hasChoice = null,
-    hasChoiceBool = false,
-    topMenus = document.querySelectorAll('.top-menu'),
-    topCircleMenu = document.querySelector('.top-circle-menu'),
-    addChoice = () => {
-        topCircleMenu.style.opacity = '0.5';
-        topMenus.forEach((_menu, _index) => _menu.classList.add(`choice${_index + 1}`))
-    },
-    removeChoice = () => {
-        if (hasChoice !== null) {
-            switch (hasChoice) {
-                case 0:
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
+/*
+* 初始化
+* */
+function ajax(method, url, data) {
+    var request = new XMLHttpRequest();
+    return new Promise((success, fail) => {
+        request.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
+                    success(request.responseText);
+                } else {
+                    fail(request.status)
+                }
             }
-            hasChoice = null;
-        }
-        topMenus.forEach((_menu, _index) => _menu.classList.remove(`choice${_index + 1}`))
-    };
+        };
+        request.open(method, url);
+        request.send(data);
+    });
+}
+
+function init() {
+    ajax('GET', 'http://127.0.0.1:8866/api/settings').then(apiData => {
+        Infos = JSON.parse(apiData);
+        Loading.nextUrl = Infos.blog_url;
+        Loading.blogLastUrl = Infos.blog_last_url;
+        loadBlog();  // 加载博客
+        drawingLabelNodes(Infos.labels);  // 绘制博客标签
+    })
+}
+
+document.addEventListener('DOMContentLoaded', e => {
+    init();
+});
+
+
+/*
+* 加载动画
+* */
 var Loading = {
         isLoading: false,
         ajaxLoading: document.querySelector('.ajax-loading'),
@@ -43,99 +56,62 @@ Object.defineProperty(Loading, 'isLoading', {
         return this.value;
     }
 });
-var BlogBoxContent = {
-    isBlogDetail: false,
-    blogBox: document.querySelector('.blog-box'),
-    blogIframe: document.querySelector('#blog-iframe')
-};
-Object.defineProperty(BlogBoxContent, 'isBlogDetail', {
-    set(v) {
-        this.value = v;
-        if (v === true) {
-            this.blogBox.classList.remove('right-blog-fade-in');
-            this.blogIframe.classList.add('right-blog-fade-in');
-            // this.blogBox.style.position = 'absolute';
-        } else {
-            this.blogBox.classList.add('right-blog-fade-in');
-            this.blogIframe.classList.remove('right-blog-fade-in');
-            // this.blogBox.style.position = 'block';
+
+/*
+* 监听滚动事件，异步加载博客
+* */
+var
+    fragment = null,
+    lastFragmentOwner = '_',
+    currentFragmentOwner = '_',
+    fragmentsManager = {
+        _: []
+    };
+
+function drawing(clear=false) {
+    var blogBox = document.querySelector('.blog-box');
+    if (clear){
+        var childrenNodes = [];
+        for (let node of blogBox.children){
+            childrenNodes.push(node);
         }
-    },
-    get() {
-        return this.value;
+        for (let node of childrenNodes) {
+            blogBox.removeChild(node);
+        }
     }
-});
-
-function init() {
-    ajax('GET', 'http://127.0.0.1:8866/api/settings').then(apiData => {
-        Infos = JSON.parse(apiData);
-        Loading.nextUrl = Infos.blog_url;
-        Loading.blogLastUrl = Infos.blog_last_url;
-        loadBlog();
-        drawingLabelNodes(Infos.labels);
-    })
-}
-
-function ajax(method, url, data) {
-    var request = new XMLHttpRequest();
-    return new Promise((success, fail) => {
-        request.onreadystatechange = function () {
-            if (this.readyState === 4) {
-                if (this.status === 200) {
-                    success(request.responseText);
-                } else {
-                    fail(request.status)
-                }
-            }
-        };
-        request.open(method, url);
-        request.send(data);
-    });
-}
-
-function drawingLabelNodes(labelData) {
-    var
-        leftBlogLabels = document.querySelector('.left-blog-labels'),
-        fragment = document.createDocumentFragment();
-    labelData.forEach(data => {
-        var
-            leftBlogLabel = document.createElement('a'),
-            numLabel = document.createElement('span');
-        leftBlogLabel.setAttribute('href', data.url);
-        leftBlogLabel.innerText = data.name;
-        numLabel.innerText = data.total;
-        leftBlogLabel.classList.add('left-blog-label');
-        numLabel.classList.add('num-label');
-        leftBlogLabel.appendChild(numLabel);
-        fragment.appendChild(leftBlogLabel);
-    });
-    leftBlogLabels.appendChild(fragment);
+    var fragment = document.createDocumentFragment();
+    for (node of fragmentsManager[currentFragmentOwner]){
+        fragment.appendChild(node);
+    }
+    blogBox.appendChild(fragment);
 }
 
 function drawingBlogNodes(blogData) {
-    var
-        blogBox = document.querySelector('.blog-box'),
-        fragment = document.createDocumentFragment();
+    if (currentFragmentOwner in fragmentsManager){
+        fragment = fragmentsManager[currentFragmentOwner];
+    } else {
+        fragment = fragmentsManager[currentFragmentOwner] = [];
+    }
     blogData.forEach(data => {
         var
             blog = document.createElement('div'),
             blogImgBox = document.createElement('div'),
             rightBlogLabels = document.createElement('div'),
-            rightBlogLabel = document.createElement('div'),
             blogImg = document.createElement('img'),
             blogInfo = document.createElement('div'),
-            blogTitle = document.createElement('div'),
+            blogTitle = document.createElement('a'),
             blogAbstract = document.createElement('div'),
             blogContent = document.createElement('div'),
             blogFooter = document.createElement('div'),
             blogAuthor = document.createElement('div'),
             blogCreateTime = document.createElement('div');
+        blogTitle.setAttribute('href', blog.blog_url);
+        blogTitle.setAttribute('target', '_blank');
         blog.style.opacity = '0';
         blog.style.transform = 'translateY(20px)';
         blog.classList.add('blog', 'right-blog-fade-in');
         blogImgBox.classList.add('blog-img-box');
         rightBlogLabels.classList.add('right-blog-labels');
-        rightBlogLabel.classList.add('right-blog-label');
         blogImg.classList.add('blog-img');
         blogInfo.classList.add('blog-info');
         blogTitle.classList.add('blog-title');
@@ -145,9 +121,13 @@ function drawingBlogNodes(blogData) {
         blogAuthor.classList.add('blog-author');
         blogCreateTime.classList.add('blog-create-time');
 
-        rightBlogLabel.innerText = data.labels[0];
+        data.labels.forEach(label => {
+            var rightBlogLabel = document.createElement('div');
+            rightBlogLabel.classList.add('right-blog-label');
+            rightBlogLabel.innerText = label;
+            rightBlogLabels.appendChild(rightBlogLabel);
+        });
         blogImg.setAttribute('src', data.blog_img);
-        rightBlogLabels.appendChild(rightBlogLabel);
         blogImgBox.appendChild(rightBlogLabels);
         blogImgBox.appendChild(blogImg);
         blog.appendChild(blogImgBox);
@@ -166,33 +146,14 @@ function drawingBlogNodes(blogData) {
         blogFooter.appendChild(blogCreateTime);
         blog.appendChild(blogFooter);
 
-        var info = data;
-        blogTitle.addEventListener('click', () => {
-            loadBlogDetail(info);
-        });
-        fragment.appendChild(blog);
+        fragment.push(blog);
     });
-    blogBox.appendChild(fragment);
-}
-
-var
-    blogIframe = document.querySelector('#blog-iframe');
-function setIframeHeight(iframe) {
-    if (iframe) {
-        var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
-        if (iframeWin.document.body) {
-            iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
-        }
+    if (currentFragmentOwner !== lastFragmentOwner){
+        lastFragmentOwner = currentFragmentOwner;
+        drawing(true);
+    } else {
+        // drawing();
     }
-}
-blogIframe.addEventListener('load', e => {
-    Loading.isLoading = false;
-    // setIframeHeight(blogIframe);
-});
-function loadBlogDetail(info) {
-    Loading.isLoading = true;
-    BlogBoxContent.isBlogDetail = true;
-    blogIframe.setAttribute('src', 'https://www.baidu.com');
 }
 
 function loadBlog() {
@@ -208,84 +169,181 @@ function loadBlog() {
 }
 
 function checkLoadBlog() {
-    if (Loading.isLoading) return;
-    if (BlogBoxContent.isBlogDetail) return;
-    if (!Loading.nextUrl) return;
+    if (Loading.isLoading) return;  // 正在加载
+    // if (BlogBoxContent.isBlogDetail) return;
+    if (!Loading.nextUrl) return;  // 无下一条记录
     var
         winHeight = window.innerHeight,
         curHeight = document.documentElement.scrollTop,
         domHeight = document.documentElement.scrollHeight;
     if ((winHeight + curHeight + 10) > domHeight) {
-        loadBlog();
+        loadBlog();  // 加载博客
     }
 }
-
-document.addEventListener('DOMContentLoaded', e => {
-    init();
-});
 
 document.addEventListener('scroll', e => {
     e.preventDefault();
     e.stopPropagation();
-    checkLoadBlog();
+    checkLoadBlog();  //检查是否加载博客
 });
 
-function animationToTop() {
-    var timer = null;
-    timer = requestAnimationFrame(function scrollToTop() {
-        var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-        if (scrollTop > 4000) {
-            document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 200;
-            requestAnimationFrame(scrollToTop);
-        } else if (scrollTop > 2000) {
-            document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 100;
-            requestAnimationFrame(scrollToTop);
-        } else if (scrollTop > 0) {
-            document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 50;
-            requestAnimationFrame(scrollToTop);
+/*
+* 博客标签管理
+* */
+var BlogBoxContent = {
+    isLabelsContent: false,
+    blogBox: document.querySelector('.blog-box')
+};
+Object.defineProperty(BlogBoxContent, 'isLabelsContent', {
+    set(v) {
+        this.value = v;
+        if (v === true) {
+            this.blogBox.classList.remove('right-blog-fade-in');
         } else {
-            cancelAnimationFrame(timer);
+            this.blogBox.classList.add('right-blog-fade-in');
         }
+    }
+});
+
+function drawingLabelNodes(labelData) {
+    var
+        leftBlogLabels = document.querySelector('.left-blog-labels'),
+        fragment = document.createDocumentFragment();
+    labelData.forEach(data => {
+        var
+            url = data.url,
+            leftBlogLabel = document.createElement('div'),
+            numLabel = document.createElement('span');
+        leftBlogLabel.addEventListener('click', () => {
+            showLabelContent(data.name, url);
+        });
+        leftBlogLabel.innerText = data.name;
+        numLabel.innerText = data.total;
+        leftBlogLabel.classList.add('left-blog-label');
+        numLabel.classList.add('num-label');
+        leftBlogLabel.appendChild(numLabel);
+        fragment.appendChild(leftBlogLabel);
     });
+    leftBlogLabels.appendChild(fragment);
 }
 
-function animationToBottom() {
-    var timer = null;
-    timer = requestAnimationFrame(function scrollToBottom() {
-        var scrollHeight = document.body.scrollHeight,
-            scrollTop = document.body.scrollTop || document.documentElement.scrollTop,
-            offset = scrollHeight - scrollTop;
-        if (offset > 1000) {
-            document.body.scrollTop = document.documentElement.scrollTop = scrollTop + 100;
-            requestAnimationFrame(scrollToBottom);
-        } else {
-            cancelAnimationFrame(timer);
-        }
-    });
-}
-function forwardStep (){
-    BlogBoxContent.isBlogDetail = true;
-}
-function backwardStep (){
-    BlogBoxContent.isBlogDetail = false;
+function showLabelContent(label, url) {
+    if (currentFragmentOwner === label) return;
+    currentFragmentOwner = label;
+    if (label in fragmentsManager){
+        drawing(false);
+        return
+    }
+    ajax('GET', `http://127.0.0.1:8866/api/blog?filePath=${url}`).then(appData => {
+        data = JSON.parse(appData);
+        Loading.nextUrl = data.blog_url;
+        drawingBlogNodes(data.blogs);
+    })
 }
 
+
+
+/*
+* 顶部菜单
+* */
+var
+    choiceNum = null,  // 选择的菜单项
+    hasChoiceBool = false,
+    topCircleMenuClicked = false,
+    topCircleMenuMoving = false,
+    topMenus = document.querySelectorAll('.top-menu'),
+    topCircleMenu = document.querySelector('.top-circle-menu');
+var
+    addChoice = () => {  // 已选择，添加退场动画
+        topCircleMenu.style.opacity = '0.5';
+        topMenus.forEach((_menu, _index) => _menu.classList.add(`choice${_index + 1}`))
+    },
+    removeChoice = () => {  // 添加进程动画
+        if (choiceNum !== null) {
+            switch (choiceNum) {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+            }
+            choiceNum = null;
+        }
+        topMenus.forEach((_menu, _index) => _menu.classList.remove(`choice${_index + 1}`))
+    },
+    topCircleMenuMove = (e) => {  // 按钮拖拽移动
+        e.stopPropagation();
+        if (e.type === 'mousemove') {
+            e.preventDefault();
+            x = e.clientX;
+            y = e.clientY;
+        } else {
+            x = e.touches[0].clientX;
+            y = e.touches[0].clientY;
+        }
+        topCircleMenu.style.left = `${x - 26}px`;
+        topCircleMenu.style.top = `${y - 26}px`;
+    },
+    animationToTop = () => {  // 滑动到顶部
+        var timer = null;
+        timer = requestAnimationFrame(function scrollToTop() {
+            var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+            if (scrollTop > 4000) {
+                document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 200;
+                requestAnimationFrame(scrollToTop);
+            } else if (scrollTop > 2000) {
+                document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 100;
+                requestAnimationFrame(scrollToTop);
+            } else if (scrollTop > 0) {
+                document.body.scrollTop = document.documentElement.scrollTop = scrollTop - 50;
+                requestAnimationFrame(scrollToTop);
+            } else {
+                cancelAnimationFrame(timer);
+            }
+        });
+    },
+    animationToBottom = () => {  // 滑动到底部
+        var timer = null;
+        timer = requestAnimationFrame(function scrollToBottom() {
+            var scrollHeight = document.body.scrollHeight,
+                scrollTop = document.body.scrollTop || document.documentElement.scrollTop,
+                offset = scrollHeight - scrollTop;
+            if (offset > 1000) {
+                document.body.scrollTop = document.documentElement.scrollTop = scrollTop + 100;
+                requestAnimationFrame(scrollToBottom);
+            } else {
+                cancelAnimationFrame(timer);
+            }
+        });
+    },
+    forwardStep = () => {
+        console.log('前进?');
+    },
+    backwardStep = () => {
+        if (currentFragmentOwner !== '_'){
+            currentFragmentOwner = '_';
+            drawing(true);
+        }
+    };
 topMenus.forEach((menu, index) => {
     menu.addEventListener('click', e => {
         e.preventDefault();
         e.stopPropagation();
         if (hasChoiceBool) return;
         hasChoiceBool = true;
-        hasChoice = index;
+        choiceNum = index;
         switch (index) {
-            case 0:  // 后退
-                setTimeout(forwardStep, 1500);
+            case 0:  // 前进
+                setTimeout(forwardStep, 1000);
                 break;
             case 1:  // 跳转顶部
                 setTimeout(animationToTop, 1500);
                 break;
-            case 2:  // 前进
-                setTimeout(backwardStep, 1500);
+            case 2:  // 后退
+                setTimeout(backwardStep, 1000);
                 break;
             case 3:  // 跳转底部
                 setTimeout(animationToBottom, 1500);
@@ -294,24 +352,6 @@ topMenus.forEach((menu, index) => {
         setTimeout(addChoice, 500);
     });
 });
-var
-    topCircleMenuClicked = false,
-    topCircleMenuMoving = false;
-
-function topCircleMenuMove(e) {
-    e.stopPropagation();
-    if (e.type === 'mousemove') {
-        e.preventDefault();
-        x = e.clientX;
-        y = e.clientY;
-    } else {
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-    }
-    topCircleMenu.style.left = `${x - 26}px`;
-    topCircleMenu.style.top = `${y - 26}px`;
-}
-
 topCircleMenu.addEventListener('mousedown', () => {
     topCircleMenuClicked = true;
     setTimeout(() => {
