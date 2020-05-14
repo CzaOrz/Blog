@@ -6,7 +6,7 @@
     padding: 0;
 }
 body {
-    min-height: 100vh;
+    height: 100vh;
     background-image: linear-gradient(45deg, #FFCDD2, #B3E5FC);
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -80,16 +80,84 @@ a{
     background-color: #ffffff;
     opacity: .7;
     background-clip: content-box;
-    transition: transform 1s ease;
     cursor: pointer;
     transform: scale(1);
     z-index: 3;
 }
-.top-circle-menu:hover {
+.top-menu-btn-static {
+    transition: opacity 1s ease, transform 1s ease;
+}
+.top-menu-btn-static:hover {
+    opacity: .7;
     transform: scale(1.1);
 }
-.top-circle-menu:active {
-    transform: scale(.5);
+.top-menu-btn-static:active {
+    transform: scale(1.1) scale(0.5);
+}
+.top-menu{
+    position: fixed;
+    z-index: 5;
+    background-color: rgba(0, 0, 0, .4);
+    height: 50vh;
+    width: 50%;
+    transition:
+            background-color 1s ease,
+            color 1s ease,
+            opacity 1s ease,
+            font-size 1s ease,
+            transform 1s ease;
+    text-align: center;
+    line-height: 50vh;
+    color: rgba(255, 255, 255, .5);
+    font-size: 3vh;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: .7;
+    border: 1px solid rgba(0, 0, 0, .1);
+    box-sizing: border-box;
+}
+.top-menu-btn-static:hover {
+    opacity: .7;
+    transform: scale(1.1);
+}
+.top-menu-btn-static:active {
+    transform: scale(1.1) scale(0.5);
+}
+.top-menu:nth-of-type(1) {
+    left: 0;
+    top: 0;
+}
+.top-menu:nth-of-type(2) {
+    right: 0;
+    top: 0;
+}
+.top-menu:nth-of-type(3) {
+    left: 0;
+    bottom: 0;
+}
+.top-menu:nth-of-type(4) {
+    right: 0;
+    bottom: 0;
+}
+.choice1 {
+    transform: translate(-100%, -100%);
+}
+.choice2 {
+    transform: translate(100%, -100%);
+}
+.choice3 {
+    transform: translate(-100%, 100%);
+}
+.choice4 {
+    transform: translate(100%, 100%);
+}
+.top-menu:hover {
+    background-color: rgba(255, 255, 255, .2);
+    color: rgba(0, 0, 0, .5);
+    font-size: 4vh;
+}
+.top-menu:active {
+    opacity: 1;
 }
 
 /*

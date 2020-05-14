@@ -1,4 +1,24 @@
-var topCircleMenu = document.querySelector('.top-circle-menu');
+var
+    hasChoice = null,
+    hasChoiceBool = false,
+    topMenus = document.querySelectorAll('.top-menu'),
+    topCircleMenu = document.querySelector('.top-circle-menu'),
+    addChoice = () => {
+        topCircleMenu.style.opacity = '0.5';
+        topMenus.forEach((_menu, _index) => _menu.classList.add(`choice${_index + 1}`))
+    },
+    removeChoice = () => {
+        if (hasChoice !== null) {
+            switch (hasChoice) {
+                case 0:
+                    break;
+                case 1:
+                    break;
+            }
+            hasChoice = null;
+        }
+        topMenus.forEach((_menu, _index) => _menu.classList.remove(`choice${_index + 1}`))
+    };
 var Loading = {
         isLoading: false,
         ajaxLoading: document.querySelector('.ajax-loading'),
@@ -126,10 +146,6 @@ function drawingBlogNodes(blogData) {
     blogBox.appendChild(fragment);
 }
 
-document.addEventListener('DOMContentLoaded', e => {
-    init();
-});
-
 function loadBlog() {
     if (Loading.isLoading) return;
     if (!Loading.nextUrl) return;
@@ -154,8 +170,90 @@ function checkLoadBlog() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', e => {
+    init();
+});
+
 document.addEventListener('scroll', e => {
     e.preventDefault();
     e.stopPropagation();
     checkLoadBlog();
+});
+
+topMenus.forEach((menu, index) => {
+    menu.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (hasChoiceBool) return;
+        hasChoiceBool = true;
+        switch (index) {
+            case 0:
+                hasChoice = index;
+                break;
+            case 1:
+                hasChoice = index;
+                break;
+        }
+        setTimeout(addChoice, 500);
+    });
+});
+var
+    topCircleMenuClicked = false,
+    topCircleMenuMoving = false;
+
+function topCircleMenuMove(e) {
+    e.stopPropagation();
+    if (e.type === 'mousemove') {
+        e.preventDefault();
+        x = e.clientX;
+        y = e.clientY;
+    } else {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+    }
+    topCircleMenu.style.left = `${x - 26}px`;
+    topCircleMenu.style.top = `${y - 26}px`;
+}
+
+topCircleMenu.addEventListener('mousedown', () => {
+    topCircleMenuClicked = true;
+    setTimeout(() => {
+        if (!topCircleMenuClicked) return;
+        topCircleMenu.classList.remove('top-menu-btn-static');
+        topCircleMenuMoving = true;
+        document.addEventListener('mousemove', topCircleMenuMove);
+    }, 500);
+});
+topCircleMenu.addEventListener('mouseup', () => {
+    topCircleMenuClicked = false;
+    if (topCircleMenuMoving) {
+        topCircleMenuMoving = false;
+        document.removeEventListener('mousemove', topCircleMenuMove);
+        topCircleMenu.classList.add('top-menu-btn-static');
+    } else {
+        topCircleMenu.style.opacity = '0';
+        hasChoiceBool = false;
+        setTimeout(removeChoice, 300);
+    }
+});
+topCircleMenu.addEventListener('touchstart', () => {
+    topCircleMenuClicked = true;
+    setTimeout(() => {
+        if (!topCircleMenuClicked) return;
+        topCircleMenu.classList.remove('top-menu-btn-static');
+        topCircleMenuMoving = true;
+        document.addEventListener('touchmove', topCircleMenuMove);
+    }, 500);
+});
+topCircleMenu.addEventListener('touchend', () => {
+    topCircleMenuClicked = false;
+    if (topCircleMenuMoving) {
+        topCircleMenuMoving = false;
+        document.removeEventListener('mousemove', topCircleMenuMove);
+        topCircleMenu.classList.add('top-menu-btn-static');
+    } else {
+        topCircleMenu.style.opacity = '0';
+        hasChoiceBool = false;
+        setTimeout(removeChoice, 300);
+    }
 });
