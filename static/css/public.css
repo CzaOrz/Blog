@@ -158,6 +158,32 @@ a{
 .top-menu:active {
     opacity: 1;
 }
+.toTop,.toRight,.toLeft,.toBottom{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 0;
+    width: 0;
+    border: 30px solid;
+    z-index: 7;
+}
+.toTop{
+    border-color:  transparent transparent #ffffff transparent;
+    transform: translate(-50%, -50%) translateY(-50%);
+}
+.toBottom{
+    border-color:  #ffffff transparent transparent transparent;
+    transform: translate(-50%, -50%) translateY(50%);
+}
+.toLeft{
+    border-color:  transparent #ffffff transparent transparent;
+    transform: translate(-50%, -50%) translateX(-50%);
+}
+.toRight{
+    border-color:  transparent transparent transparent #ffffff;
+    transform: translate(-50%, -50%) translateX(50%);
+}
 
 /*
 * 左侧信息栏

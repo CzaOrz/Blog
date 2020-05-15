@@ -40,7 +40,8 @@ var Loading = {
         isLoading: false,
         ajaxLoading: document.querySelector('.ajax-loading'),
         nextUrl: '',
-        blogLastUrl: ''
+        blogLastUrl: '',
+        fragmentUrl: {}
     },
     Infos = {};
 Object.defineProperty(Loading, 'isLoading', {
@@ -51,11 +52,17 @@ Object.defineProperty(Loading, 'isLoading', {
         } else {
             this.ajaxLoading.classList.add('hidden');
         }
-    },
-    get() {
-        return this.value;
     }
 });
+Object.defineProperty(Loading, 'nextUrl', {
+    set(v) {
+        this.fragmentUrl[currentFragmentOwner] = v;
+    },
+    get() {
+        return this.fragmentUrl[currentFragmentOwner];
+    }
+});
+
 
 /*
 * 监听滚动事件，异步加载博客
@@ -65,32 +72,27 @@ var
     lastFragmentOwner = '_',
     currentFragmentOwner = '_',
     fragmentsManager = {
-        _: []
+        _: document.createDocumentFragment()
     };
 
-function drawing(clear=false) {
+function drawing(clear = false) {
     var blogBox = document.querySelector('.blog-box');
-    if (clear){
-        var childrenNodes = [];
-        for (let node of blogBox.children){
-            childrenNodes.push(node);
+    fragment = fragmentsManager[currentFragmentOwner];
+    if (clear) {
+        lastFragment = fragmentsManager[lastFragmentOwner];
+        var loop = blogBox.children.length;
+        for (let i = 0; i < loop; i++) {
+            lastFragment.appendChild(blogBox.children[0])
         }
-        for (let node of childrenNodes) {
-            blogBox.removeChild(node);
-        }
-    }
-    var fragment = document.createDocumentFragment();
-    for (node of fragmentsManager[currentFragmentOwner]){
-        fragment.appendChild(node);
     }
     blogBox.appendChild(fragment);
 }
 
-function drawingBlogNodes(blogData) {
-    if (currentFragmentOwner in fragmentsManager){
+function drawingBlogNodes(blogData, rolling = false) {
+    if (currentFragmentOwner in fragmentsManager) {
         fragment = fragmentsManager[currentFragmentOwner];
     } else {
-        fragment = fragmentsManager[currentFragmentOwner] = [];
+        fragment = fragmentsManager[currentFragmentOwner] = document.createDocumentFragment();
     }
     blogData.forEach(data => {
         var
@@ -146,13 +148,16 @@ function drawingBlogNodes(blogData) {
         blogFooter.appendChild(blogCreateTime);
         blog.appendChild(blogFooter);
 
-        fragment.push(blog);
+        fragment.appendChild(blog);
     });
-    if (currentFragmentOwner !== lastFragmentOwner){
-        lastFragmentOwner = currentFragmentOwner;
-        drawing(true);
+    if (currentFragmentOwner !== lastFragmentOwner) {
+        if (rolling) {
+            drawing();
+        } else {
+            drawing(true);
+        }
     } else {
-        // drawing();
+        drawing();
     }
 }
 
@@ -164,7 +169,7 @@ function loadBlog() {
         var data = JSON.parse(appData);
         Loading.isLoading = false;
         Loading.nextUrl = data.next_url;
-        drawingBlogNodes(data.blogs);
+        drawingBlogNodes(data.blogs, true);
     });
 }
 
@@ -187,6 +192,7 @@ document.addEventListener('scroll', e => {
     checkLoadBlog();  //检查是否加载博客
 });
 
+
 /*
 * 博客标签管理
 * */
@@ -198,9 +204,9 @@ Object.defineProperty(BlogBoxContent, 'isLabelsContent', {
     set(v) {
         this.value = v;
         if (v === true) {
-            this.blogBox.classList.remove('right-blog-fade-in');
+            // this.blogBox.classList.remove('right-blog-fade-in');
         } else {
-            this.blogBox.classList.add('right-blog-fade-in');
+            // this.blogBox.classList.add('right-blog-fade-in');
         }
     }
 });
@@ -229,18 +235,18 @@ function drawingLabelNodes(labelData) {
 
 function showLabelContent(label, url) {
     if (currentFragmentOwner === label) return;
+    lastFragmentOwner = currentFragmentOwner;
     currentFragmentOwner = label;
-    if (label in fragmentsManager){
-        drawing(false);
+    if (label in fragmentsManager) {
+        drawing(true);
         return
     }
     ajax('GET', `http://127.0.0.1:8866/api/blog?filePath=${url}`).then(appData => {
         data = JSON.parse(appData);
-        Loading.nextUrl = data.blog_url;
+        Loading.nextUrl = data.next_url;
         drawingBlogNodes(data.blogs);
     })
 }
-
 
 
 /*
@@ -320,10 +326,11 @@ var
         });
     },
     forwardStep = () => {
-        console.log('前进?');
+        console.log('test');
     },
     backwardStep = () => {
-        if (currentFragmentOwner !== '_'){
+        if (currentFragmentOwner !== '_') {
+            lastFragmentOwner = currentFragmentOwner;
             currentFragmentOwner = '_';
             drawing(true);
         }
