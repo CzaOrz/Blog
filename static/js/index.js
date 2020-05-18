@@ -2,7 +2,7 @@
 * 初始化
 * */
 var
-    is_online = false,  // 线上环境开关
+    is_online = true,  // 线上环境开关
     settings_uri_offline = 'http://127.0.0.1:8866/api/settings',
     settings_uri_online = 'https://czaorz.github.io/Articles/settings.json';
 
