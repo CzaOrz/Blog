@@ -113,7 +113,7 @@ function drawingBlogNodes(blogData, rolling = false) {
             blogFooter = document.createElement('div'),
             blogAuthor = document.createElement('div'),
             blogCreateTime = document.createElement('div');
-        blogTitle.setAttribute('href', blog.blog_url);
+        blogTitle.setAttribute('href', data.blog_url);
         blogTitle.setAttribute('target', '_blank');
         blog.style.opacity = '0';
         blog.style.transform = 'translateY(20px)';
