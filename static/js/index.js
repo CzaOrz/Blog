@@ -1,6 +1,11 @@
 /*
 * 初始化
 * */
+var
+    is_online = false,  // 线上环境开关
+    settings_uri_offline = 'http://127.0.0.1:8866/api/settings',
+    settings_uri_online = 'https://czaorz.github.io/Articles/settings.json';
+
 function ajax(method, url, data) {
     var request = new XMLHttpRequest();
     return new Promise((success, fail) => {
@@ -19,7 +24,8 @@ function ajax(method, url, data) {
 }
 
 function init() {
-    ajax('GET', 'http://127.0.0.1:8866/api/settings').then(apiData => {
+    var settings_uri = is_online ? settings_uri_online : settings_uri_offline;
+    ajax('GET', settings_uri).then(apiData => {
         Infos = JSON.parse(apiData);
         Loading.nextUrl = Infos.blog_url;
         Loading.blogLastUrl = Infos.blog_last_url;
@@ -94,7 +100,7 @@ function drawingBlogNodes(blogData, rolling = false) {
     } else {
         fragment = fragmentsManager[currentFragmentOwner] = document.createDocumentFragment();
     }
-    blogData.forEach(data => {
+    blogData.forEach(data => {  // todo, 僵硬，如何优化?
         var
             blog = document.createElement('div'),
             blogImgBox = document.createElement('div'),
@@ -165,7 +171,7 @@ function loadBlog() {
     if (Loading.isLoading) return;
     if (!Loading.nextUrl) return;
     Loading.isLoading = true;
-    ajax('GET', `http://127.0.0.1:8866/api/blog?filePath=${Loading.nextUrl}`).then(appData => {
+    ajax('GET', Loading.nextUrl).then(appData => {
         var data = JSON.parse(appData);
         Loading.isLoading = false;
         Loading.nextUrl = data.next_url;
@@ -175,7 +181,6 @@ function loadBlog() {
 
 function checkLoadBlog() {
     if (Loading.isLoading) return;  // 正在加载
-    // if (BlogBoxContent.isBlogDetail) return;
     if (!Loading.nextUrl) return;  // 无下一条记录
     var
         winHeight = window.innerHeight,
@@ -196,21 +201,6 @@ document.addEventListener('scroll', e => {
 /*
 * 博客标签管理
 * */
-var BlogBoxContent = {
-    isLabelsContent: false,
-    blogBox: document.querySelector('.blog-box')
-};
-Object.defineProperty(BlogBoxContent, 'isLabelsContent', {
-    set(v) {
-        this.value = v;
-        if (v === true) {
-            // this.blogBox.classList.remove('right-blog-fade-in');
-        } else {
-            // this.blogBox.classList.add('right-blog-fade-in');
-        }
-    }
-});
-
 function drawingLabelNodes(labelData) {
     var
         leftBlogLabels = document.querySelector('.left-blog-labels'),
@@ -241,7 +231,7 @@ function showLabelContent(label, url) {
         drawing(true);
         return
     }
-    ajax('GET', `http://127.0.0.1:8866/api/blog?filePath=${url}`).then(appData => {
+    ajax('GET', url).then(appData => {
         data = JSON.parse(appData);
         Loading.nextUrl = data.next_url;
         drawingBlogNodes(data.blogs);
@@ -264,7 +254,7 @@ var
         topCircleMenu.style.opacity = '0.5';
         topMenus.forEach((_menu, _index) => _menu.classList.add(`choice${_index + 1}`))
     },
-    removeChoice = () => {  // 添加进程动画
+    removeChoice = () => {  // 添加进场动画
         if (choiceNum !== null) {
             switch (choiceNum) {
                 case 0:
@@ -401,3 +391,101 @@ topCircleMenu.addEventListener('touchend', e => {
         setTimeout(removeChoice, 300);
     }
 });
+
+/*
+* 左侧canvas
+* */
+var
+    words = ['女票', '涨薪', '健康', '快乐', '大厂', '长胖', '锻炼', '猫咪', '帝豪', '自信', '存钱', '勇敢'],
+    bg = document.querySelector('#bg'),
+    ani = document.querySelector('#ani'),
+    ctx_bg = bg.getContext('2d'),
+    ctx_ani = ani.getContext('2d');
+bg.height = ani.height = 260;
+bg.width = ani.width = 260;
+/* 两个圈 */
+ctx_bg.beginPath();
+ctx_bg.translate(130, 130);
+ctx_bg.moveTo(80, 0);
+ctx_bg.arc(0, 0, 80, 0, Math.PI * 2);
+ctx_bg.moveTo(115, 0);
+ctx_bg.arc(0, 0, 115, 0, Math.PI * 2);
+ctx_bg.stroke();
+/* 六芒星 */
+ctx_bg.beginPath();
+ctx_bg.moveTo(-69, 40);
+ctx_bg.lineTo(69, 40);
+ctx_bg.lineTo(0, -80);
+ctx_bg.lineTo(-69, 40);
+ctx_bg.moveTo(-69, -40);
+ctx_bg.lineTo(69, -40);
+ctx_bg.lineTo(0, 80);
+ctx_bg.lineTo(-69, -40);
+ctx_bg.stroke();
+/* 两个红三角 */
+ctx_bg.beginPath();
+ctx_bg.fillStyle = 'red';
+ctx_bg.moveTo(0, -125);
+ctx_bg.lineTo(-5, -115);
+ctx_bg.lineTo(5, -115);
+ctx_bg.lineTo(0, -125);
+ctx_bg.moveTo(-125, 0);
+ctx_bg.lineTo(-115, 5);
+ctx_bg.lineTo(-115, -5);
+ctx_bg.lineTo(-125, 0);
+ctx_bg.fill();
+
+/* 生成器 */
+function* loop(n) {
+    var pool = [];
+    for (var i = 0; i < n; i++) {
+        pool.push(i);
+    }
+    while (1) {
+        for (i of pool) {
+            yield i
+        }
+    }
+}
+
+var
+    p_rotate = Math.PI / 30,
+    word_rotate = Math.PI / 2 + Math.PI / 18,
+    loop2000 = loop(2000);
+
+function clockDrawing() {
+    var value = loop2000.next().value;
+
+    ctx_ani.clearRect(0, 0, 260, 260);
+
+    ctx_ani.save();
+    ctx_ani.translate(130, 130);
+
+    ctx_ani.save();  // 60个点
+    ctx_ani.rotate(value * (Math.PI / 500));
+    for (let i = 0; i < 60; i++) {
+        ctx_ani.beginPath();
+        ctx_ani.moveTo(120, 0);
+        ctx_ani.lineTo(125, 0);
+        ctx_ani.stroke();
+        ctx_ani.rotate(p_rotate);
+    }
+    ctx_ani.restore();
+
+    ctx_ani.save();  // 12个文字
+    ctx_ani.rotate(-value * (Math.PI / 1000));
+    words.forEach(word => {
+        ctx_ani.rotate(Math.PI / 6);
+        ctx_ani.save();
+        ctx_ani.translate(85, 0);
+        ctx_ani.rotate(word_rotate);
+        ctx_ani.fillText(word, 5, 0);
+        ctx_ani.restore();
+    });
+    ctx_ani.restore();
+
+    ctx_ani.restore();
+    requestAnimationFrame(clockDrawing);
+}
+
+clockDrawing();
