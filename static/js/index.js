@@ -191,7 +191,7 @@ function checkLoadBlog() {
     }
 }
 
-document.addEventListener('scroll', e => {
+window.addEventListener('scroll', e => {
     e.preventDefault();
     e.stopPropagation();
     checkLoadBlog();  //检查是否加载博客
@@ -453,7 +453,11 @@ var
     word_rotate = Math.PI / 2 + Math.PI / 18,
     loop2000 = loop(2000);
 
-function clockDrawing() {
+var point60 = new Path2D();
+point60.moveTo(120, 0);
+point60.lineTo(125, 0);
+
+(function clockDrawing() {
     var value = loop2000.next().value;
 
     ctx_ani.clearRect(0, 0, 260, 260);
@@ -464,10 +468,7 @@ function clockDrawing() {
     ctx_ani.save();  // 60个点
     ctx_ani.rotate(value * (Math.PI / 500));
     for (let i = 0; i < 60; i++) {
-        ctx_ani.beginPath();
-        ctx_ani.moveTo(120, 0);
-        ctx_ani.lineTo(125, 0);
-        ctx_ani.stroke();
+        ctx_ani.stroke(point60);
         ctx_ani.rotate(p_rotate);
     }
     ctx_ani.restore();
@@ -486,6 +487,4 @@ function clockDrawing() {
 
     ctx_ani.restore();
     requestAnimationFrame(clockDrawing);
-}
-
-clockDrawing();
+})();
