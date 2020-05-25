@@ -173,9 +173,9 @@ function loadBlog() {
     Loading.isLoading = true;
     ajax('GET', Loading.nextUrl).then(appData => {
         var data = JSON.parse(appData);
-        Loading.isLoading = false;
-        Loading.nextUrl = data.next_url;
         drawingBlogNodes(data.blogs, true);
+        Loading.nextUrl = data.next_url;
+        Loading.isLoading = false;
     });
 }
 
